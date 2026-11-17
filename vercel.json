@@ -6,11 +6,22 @@
     },
     "api": {
       "root": "server",
-      "entrypoint": "src/app.ts"
+      "entrypoint": "src/app.ts",
+      "buildCommand": "echo 'TypeScript is compiled by Vercel from src/app.ts'"
     }
   },
   "rewrites": [
-    { "source": "/v1/(.*)", "destination": { "service": "api" } },
-    { "source": "/(.*)", "destination": { "service": "web" } }
+    {
+      "source": "/v1/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    }
   ]
 }
