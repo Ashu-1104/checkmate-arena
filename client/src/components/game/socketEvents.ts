@@ -1,5 +1,5 @@
 import type { Action, CustomSquares, Lobby, Message } from "@/types";
-import type { Game, User } from "@chessu/types";
+import type { Clock, Game, User } from "@chessu/types";
 import type { Dispatch, SetStateAction } from "react";
 import type { Socket } from "socket.io-client";
 
@@ -16,6 +16,7 @@ export function initSocket(
         makeMove: Function;
         setNavFen: Dispatch<SetStateAction<string | null>>;
         setNavIndex: Dispatch<SetStateAction<number | null>>;
+        setClockOffset: Dispatch<SetStateAction<number>>;
     }
 ) {
     socket.on("connect", () => {
@@ -28,6 +29,9 @@ export function initSocket(
     });
 
     socket.on("receivedLatestGame", (latestGame: Game) => {
+        if (latestGame.clock?.serverTime) {
+            actions.setClockOffset(latestGame.clock.serverTime - Date.now());
+        }
         if (latestGame.pgn && latestGame.pgn !== lobby.actualGame.pgn()) {
             syncPgn(latestGame.pgn, lobby, actions);
         }
@@ -41,6 +45,11 @@ export function initSocket(
         if (!success) {
             socket.emit("getLatestGame");
         }
+    });
+
+    socket.on("clockUpdate", (clock: Clock) => {
+        if (clock.serverTime) actions.setClockOffset(clock.serverTime - Date.now());
+        actions.updateLobby({ type: "updateLobby", payload: { clock } });
     });
 
     socket.on("userJoinedAsPlayer", ({ name, side }: { name: string; side: "white" | "black" }) => {
@@ -73,6 +82,10 @@ export function initSocket(
                 } else {
                     m.message = `${winnerName} (${winnerSide}) has claimed the win due to abandonment.`;
                 }
+            } else if (reason === "timeout" && winnerSide) {
+                m.message = `${winnerName} (${winnerSide}) has won on time.`;
+            } else if (reason === "timeout") {
+                m.message = "The game has been drawn on time due to insufficient material.";
             } else if (reason === "checkmate") {
                 m.message = `${winnerName} (${winnerSide}) has won by checkmate.`;
             } else {

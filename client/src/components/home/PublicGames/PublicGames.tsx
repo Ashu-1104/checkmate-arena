@@ -1,3 +1,4 @@
+import { formatTimeControl } from "@/lib/format";
 import { fetchPublicGames } from "@/lib/game";
 import JoinButton from "./JoinButton";
 import RefreshButton from "./RefreshButton";
@@ -17,6 +18,7 @@ export default async function PublicGames() {
             <tr>
               <th className="w-48">Host</th>
               <th className="w-48">Opponent</th>
+              <th className="w-24">Time</th>
               <th className="w-24"></th>
             </tr>
           </thead>
@@ -38,6 +40,7 @@ export default async function PublicGames() {
                   >
                     {(game.host?.id === game.white?.id ? game.black?.name : game.white?.name) || ""}
                   </td>
+                  <td className="font-mono">{formatTimeControl(game.timeControl)}</td>
                   <th>
                     <JoinButton code={game.code as string} />
                   </th>
@@ -46,6 +49,7 @@ export default async function PublicGames() {
             ) : (
               <tr>
                 <td>(empty)</td>
+                <td></td>
                 <td></td>
                 <td></td>
               </tr>

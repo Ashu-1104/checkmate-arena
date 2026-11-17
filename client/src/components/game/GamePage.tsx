@@ -25,6 +25,8 @@ import { Chessboard } from "react-chessboard";
 import { API_URL, SITE_HOST, SITE_URL } from "@/config";
 import { io } from "socket.io-client";
 
+import { describeResult, formatTimeControl } from "@/lib/format";
+import Clock from "./Clock";
 import { lobbyReducer, squareReducer } from "./reducers";
 import { initSocket } from "./socketEvents";
 import { syncPgn, syncSide } from "./utils";
@@ -53,6 +55,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
 
   const [navFen, setNavFen] = useState<string | null>(null);
   const [navIndex, setNavIndex] = useState<number | null>(null);
+  const [clockOffset, setClockOffset] = useState(0);
 
   const [playBtnLoading, setPlayBtnLoading] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -114,7 +117,8 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
       updateCustomSquares,
       makeMove,
       setNavFen,
-      setNavIndex
+      setNavIndex,
+      setClockOffset
     });
 
     return () => {
@@ -356,47 +360,63 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     socket.emit("joinAsPlayer");
   }
 
+  function getClockHtml(side: "white" | "black") {
+    if (!lobby.clock) return null;
+    const running =
+      !lobby.endReason &&
+      !lobby.winner &&
+      lobby.clock.lastMoveAt !== undefined &&
+      lobby.actualGame.turn() === side[0];
+    return <Clock clock={lobby.clock} side={side} running={running} offset={clockOffset} />;
+  }
+
   function getPlayerHtml(side: "top" | "bottom") {
     const blackHtml = (
-      <div className="flex w-full flex-col justify-center">
-        <a
-          className={
-            (lobby.black?.name ? "font-bold" : "") +
-            (typeof lobby.black?.id === "number" ? " text-primary link-hover" : " cursor-default")
-          }
-          href={typeof lobby.black?.id === "number" ? `/user/${lobby.black?.name}` : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {lobby.black?.name || "(no one)"}
-        </a>
-        <span className="flex items-center gap-1 text-xs">
-          black
-          {lobby.black?.connected === false && (
-            <span className="badge badge-xs badge-error">disconnected</span>
-          )}
-        </span>
+      <div className="flex w-full items-center gap-2">
+        <div className="flex flex-col justify-center">
+          <a
+            className={
+              (lobby.black?.name ? "font-bold" : "") +
+              (typeof lobby.black?.id === "number" ? " text-primary link-hover" : " cursor-default")
+            }
+            href={typeof lobby.black?.id === "number" ? `/user/${lobby.black?.name}` : undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {lobby.black?.name || "(no one)"}
+          </a>
+          <span className="flex items-center gap-1 text-xs">
+            black
+            {lobby.black?.connected === false && (
+              <span className="badge badge-xs badge-error">disconnected</span>
+            )}
+          </span>
+        </div>
+        {getClockHtml("black")}
       </div>
     );
     const whiteHtml = (
-      <div className="flex w-full flex-col justify-center">
-        <a
-          className={
-            (lobby.white?.name ? "font-bold" : "") +
-            (typeof lobby.white?.id === "number" ? " text-primary link-hover" : " cursor-default")
-          }
-          href={typeof lobby.white?.id === "number" ? `/user/${lobby.white?.name}` : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {lobby.white?.name || "(no one)"}
-        </a>
-        <span className="flex items-center gap-1 text-xs">
-          white
-          {lobby.white?.connected === false && (
-            <span className="badge badge-xs badge-error">disconnected</span>
-          )}
-        </span>
+      <div className="flex w-full items-center gap-2">
+        <div className="flex flex-col justify-center">
+          <a
+            className={
+              (lobby.white?.name ? "font-bold" : "") +
+              (typeof lobby.white?.id === "number" ? " text-primary link-hover" : " cursor-default")
+            }
+            href={typeof lobby.white?.id === "number" ? `/user/${lobby.white?.name}` : undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {lobby.white?.name || "(no one)"}
+          </a>
+          <span className="flex items-center gap-1 text-xs">
+            white
+            {lobby.white?.connected === false && (
+              <span className="badge badge-xs badge-error">disconnected</span>
+            )}
+          </span>
+        </div>
+        {getClockHtml("white")}
       </div>
     );
 
@@ -568,7 +588,9 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
         <div className="mb-auto flex w-full p-2">
           <div className="flex flex-1 flex-col items-center justify-between">
             {getPlayerHtml("top")}
-            <div className="my-auto w-full text-sm">vs</div>
+            <div className="my-auto w-full text-sm">
+              vs{lobby.timeControl && ` · ${formatTimeControl(lobby.timeControl)}`}
+            </div>
             {getPlayerHtml("bottom")}
           </div>
 
@@ -652,14 +674,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
             <div className="bg-neutral absolute w-full rounded-t-lg bg-opacity-95 p-2">
               {lobby.endReason ? (
                 <div>
-                  {lobby.endReason === "abandoned"
-                    ? lobby.winner === "draw"
-                      ? `The game ended in a draw due to abandonment.`
-                      : `The game was won by ${lobby.winner} due to abandonment.`
-                    : lobby.winner === "draw"
-                      ? "The game ended in a draw."
-                      : `The game was won by checkmate (${lobby.winner}).`}{" "}
-                  <br />
+                  {describeResult(lobby.endReason, lobby.winner)} <br />
                   You can review the archived game at{" "}
                   <a
                     className="link"

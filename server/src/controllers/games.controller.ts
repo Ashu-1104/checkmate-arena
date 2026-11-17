@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { nanoid } from "nanoid";
 
 import GameModel, { activeGames } from "../db/models/game.model.js";
+import { createClock, parseTimeControl } from "../utils/clock.js";
 
 export const getGames = async (req: Request, res: Response) => {
     try {
@@ -84,6 +85,11 @@ export const createGame = async (req: Request, res: Response) => {
             host: user,
             pgn: ""
         };
+        const timeControl = parseTimeControl(req.body.timeControl);
+        if (timeControl) {
+            game.timeControl = timeControl;
+            game.clock = createClock(timeControl);
+        }
         if (req.body.side === "white") {
             game.white = user;
         } else if (req.body.side === "black") {

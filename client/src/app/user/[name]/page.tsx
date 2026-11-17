@@ -69,6 +69,8 @@ export default async function Profile({ params }: { params: { name: string } }) 
             let endReason = game.endReason as string;
             if (endReason === "repetition") {
               endReason = "threefold repetition";
+            } else if (endReason === "timeout") {
+              endReason = "time";
             } else if (endReason === "insufficient") {
               endReason = "insufficient material";
             }

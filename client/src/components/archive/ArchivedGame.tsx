@@ -1,6 +1,7 @@
 "use client";
 
 import { SITE_HOST, SITE_URL } from "@/config";
+import { describeResult } from "@/lib/format";
 import type { CustomSquares } from "@/types";
 import { Game } from "@chessu/types";
 import {
@@ -320,13 +321,7 @@ export default function ArchivedGame({ game }: { game: Game }) {
 
         <div className="relative h-60 w-full min-w-fit">
           <div className="bg-base-300 flex h-full w-full min-w-[64px] flex-col rounded-lg p-4 shadow-sm">
-            {game.endReason === "abandoned"
-              ? game.winner === "draw"
-                ? "The game ended in a draw due to abandonment."
-                : `The game was won by ${game.winner} due to abandonment.`
-              : game.winner === "draw"
-                ? "The game ended in a draw."
-                : `The game was won by checkmate (${game.winner}).`}
+            {describeResult(game.endReason, game.winner)}
 
             <div className="mt-2 flex items-center justify-end">
               <button

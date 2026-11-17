@@ -4,8 +4,62 @@ import type { DisconnectReason, Socket } from "socket.io";
 
 import GameModel, { activeGames } from "../db/models/game.model.js";
 import { io } from "../server.js";
+import { applyMove, remainingTime } from "../utils/clock.js";
 
 // TODO: clean up
+
+// Saves a finished game, notifies the room and removes it from the active games.
+async function finishGame(
+    game: Game,
+    reason: Game["endReason"],
+    winner: "white" | "black" | "draw"
+) {
+    game.endReason = reason;
+    game.winner = winner;
+    if (game.flagTimeout) clearTimeout(game.flagTimeout);
+
+    const saved = await GameModel.save(game);
+    game.id = saved?.id;
+
+    io.to(game.code as string).emit("gameOver", {
+        reason,
+        winnerName: winner === "draw" ? undefined : game[winner]?.name,
+        winnerSide: winner === "draw" ? undefined : winner,
+        id: game.id
+    });
+
+    if (game.timeout) clearTimeout(game.timeout);
+    if (activeGames.includes(game)) activeGames.splice(activeGames.indexOf(game), 1);
+}
+
+// The side whose flag fell loses, unless the opponent only has a king left (then it is a draw).
+async function endOnTime(game: Game, side: "white" | "black") {
+    if (game.endReason || !activeGames.includes(game)) return;
+    if (game.clock) game.clock[side] = 0;
+
+    const opponent = side === "white" ? "black" : "white";
+    const chess = new Chess();
+    if (game.pgn) chess.loadPgn(game.pgn);
+    const opponentOnlyKing = chess
+        .board()
+        .flat()
+        .every((sq) => !sq || sq.color !== opponent[0] || sq.type === "k");
+
+    await finishGame(game, "timeout", opponentOnlyKing ? "draw" : opponent);
+}
+
+// Ends the game automatically if the side to move runs out of time.
+function scheduleFlag(game: Game, side: "white" | "black") {
+    if (game.flagTimeout) clearTimeout(game.flagTimeout);
+    if (!game.clock) return;
+    game.flagTimeout = Number(
+        setTimeout(() => endOnTime(game, side), remainingTime(game.clock, side, Date.now()))
+    );
+}
+
+function stampClock(game: Game) {
+    if (game.clock) game.clock.serverTime = Date.now();
+}
 
 export async function joinLobby(this: Socket, gameCode: string) {
     const game = activeGames.find((g) => g.code === gameCode);
@@ -48,6 +102,7 @@ export async function joinLobby(this: Socket, gameCode: string) {
     }
 
     await this.join(gameCode);
+    stampClock(game);
     io.to(game.code as string).emit("receivedLatestGame", game);
 }
 
@@ -150,6 +205,7 @@ export async function claimAbandoned(this: Socket, type: "win" | "draw") {
 
     io.to(game.code as string).emit("gameOver", gameOver);
 
+    if (game.flagTimeout) clearTimeout(game.flagTimeout);
     if (game.timeout) clearTimeout(game.timeout);
     activeGames.splice(activeGames.indexOf(game), 1);
 }
@@ -157,7 +213,10 @@ export async function claimAbandoned(this: Socket, type: "win" | "draw") {
 // eslint-disable-next-line no-unused-vars
 export async function getLatestGame(this: Socket) {
     const game = activeGames.find((g) => g.code === Array.from(this.rooms)[1]);
-    if (game) this.emit("receivedLatestGame", game);
+    if (game) {
+        stampClock(game);
+        this.emit("receivedLatestGame", game);
+    }
 }
 
 export async function sendMove(this: Socket, m: { from: string; to: string; promotion?: string }) {
@@ -178,11 +237,27 @@ export async function sendMove(this: Socket, m: { from: string; to: string; prom
             throw new Error("not turn to move");
         }
 
+        const side = prevTurn === "w" ? "white" : "black";
+        let clockResult;
+        if (game.timeControl && game.clock) {
+            clockResult = applyMove(game.clock, side, game.timeControl, Date.now());
+            if (clockResult.flagged) {
+                await endOnTime(game, side);
+                return;
+            }
+        }
+
         const newMove = chess.move(m);
 
         if (newMove) {
             game.pgn = chess.pgn();
             this.to(game.code as string).emit("receivedMove", m);
+            if (clockResult) {
+                game.clock = clockResult.clock;
+                stampClock(game);
+                io.to(game.code as string).emit("clockUpdate", game.clock);
+                if (!chess.isGameOver()) scheduleFlag(game, side === "white" ? "black" : "white");
+            }
             if (chess.isGameOver()) {
                 let reason: Game["endReason"];
                 if (chess.isCheckmate()) reason = "checkmate";
@@ -210,6 +285,7 @@ export async function sendMove(this: Socket, m: { from: string; to: string; prom
                 game.id = id;
                 io.to(game.code as string).emit("gameOver", { reason, winnerName, winnerSide, id });
 
+                if (game.flagTimeout) clearTimeout(game.flagTimeout);
                 if (game.timeout) clearTimeout(game.timeout);
                 activeGames.splice(activeGames.indexOf(game), 1);
             }
