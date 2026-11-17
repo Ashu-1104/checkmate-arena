@@ -8,12 +8,12 @@ export default function Header() {
       <div className="flex flex-1 items-center gap-2">
         <Link
           href="/"
-          className="btn btn-ghost no-animation p-0 text-2xl normal-case hover:bg-transparent"
+          className="btn btn-ghost no-animation flex-nowrap gap-1 whitespace-nowrap p-0 text-lg normal-case hover:bg-transparent sm:text-2xl"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
-            className="h-8 w-8"
+            className="h-6 w-6 sm:h-8 sm:w-8"
             fillRule="evenodd"
             clipRule="evenodd"
             viewBox="0 0 288 512.66"
