@@ -19,9 +19,11 @@ export const describeResult = (endReason: Game["endReason"], winner: Game["winne
     if (winner !== "draw") {
         if (endReason === "abandoned") return `The game was won by ${winner} due to abandonment.`;
         if (endReason === "timeout") return `The game was won on time (${winner}).`;
+        if (endReason === "resigned") return `The game was won by resignation (${winner}).`;
         return `The game was won by checkmate (${winner}).`;
     }
     if (endReason === "abandoned") return "The game ended in a draw due to abandonment.";
     if (endReason === "timeout") return "The game ended in a draw on time (insufficient material).";
+    if (endReason === "agreement") return "The game ended in a draw by agreement.";
     return "The game ended in a draw.";
 };

@@ -71,6 +71,8 @@ export default async function Profile({ params }: { params: { name: string } }) 
               endReason = "threefold repetition";
             } else if (endReason === "timeout") {
               endReason = "time";
+            } else if (endReason === "resigned") {
+              endReason = "resignation";
             } else if (endReason === "insufficient") {
               endReason = "insufficient material";
             }

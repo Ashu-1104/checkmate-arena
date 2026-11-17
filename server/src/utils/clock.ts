@@ -43,7 +43,12 @@ export const applyMove = (
     }
     const added = clock.lastMoveAt === undefined ? 0 : tc.increment * 1000;
     return {
-        clock: { white: clock.white, black: clock.black, [side]: remaining + added, lastMoveAt: now },
+        clock: {
+            white: clock.white,
+            black: clock.black,
+            [side]: remaining + added,
+            lastMoveAt: now
+        },
         flagged: false
     };
 };

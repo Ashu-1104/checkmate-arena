@@ -11,7 +11,9 @@ export interface Game {
         | "repetition"
         | "insufficient"
         | "abandoned"
-        | "timeout";
+        | "timeout"
+        | "resigned"
+        | "agreement";
     host?: User;
     code?: string;
     unlisted?: boolean;
@@ -24,6 +26,8 @@ export interface Game {
     timeControl?: TimeControl;
     clock?: Clock;
     flagTimeout?: number;
+
+    drawOffer?: "white" | "black" | null; // side with a pending draw offer
 }
 
 export interface TimeControl {

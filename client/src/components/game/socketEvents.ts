@@ -52,6 +52,19 @@ export function initSocket(
         actions.updateLobby({ type: "updateLobby", payload: { clock } });
     });
 
+    socket.on("drawOffered", ({ name, side }: { name: string; side: "white" | "black" }) => {
+        actions.updateLobby({ type: "updateLobby", payload: { drawOffer: side } });
+        actions.addMessage({ author: { name: "server" }, message: `${name} has offered a draw.` });
+    });
+
+    socket.on("drawDeclined", ({ name }: { name: string }) => {
+        actions.updateLobby({ type: "updateLobby", payload: { drawOffer: null } });
+        actions.addMessage({
+            author: { name: "server" },
+            message: `${name} declined the draw offer.`
+        });
+    });
+
     socket.on("userJoinedAsPlayer", ({ name, side }: { name: string; side: "white" | "black" }) => {
         actions.addMessage({
             author: { name: "server" },
@@ -82,6 +95,11 @@ export function initSocket(
                 } else {
                     m.message = `${winnerName} (${winnerSide}) has claimed the win due to abandonment.`;
                 }
+            } else if (reason === "resigned") {
+                const loserSide = winnerSide === "white" ? "black" : "white";
+                m.message = `${loserSide} resigned. ${winnerName} (${winnerSide}) has won.`;
+            } else if (reason === "agreement") {
+                m.message = "The game has been drawn by agreement.";
             } else if (reason === "timeout" && winnerSide) {
                 m.message = `${winnerName} (${winnerSide}) has won on time.`;
             } else if (reason === "timeout") {

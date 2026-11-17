@@ -56,6 +56,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   const [navFen, setNavFen] = useState<string | null>(null);
   const [navIndex, setNavIndex] = useState<number | null>(null);
   const [clockOffset, setClockOffset] = useState(0);
+  const [confirmResign, setConfirmResign] = useState(false);
 
   const [playBtnLoading, setPlayBtnLoading] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -527,6 +528,72 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     };
   }
 
+  // side of the current user if they are playing this game
+  const mySide =
+    session?.user?.id === lobby.white?.id
+      ? "white"
+      : session?.user?.id === lobby.black?.id
+        ? "black"
+        : undefined;
+  const gameInProgress =
+    !!lobby.white?.id && !!lobby.black?.id && !lobby.endReason && !lobby.winner;
+
+  function resign() {
+    if (!confirmResign) {
+      setConfirmResign(true);
+      setTimeout(() => setConfirmResign(false), 4000);
+      return;
+    }
+    setConfirmResign(false);
+    socket.emit("resign");
+  }
+
+  function offerDraw() {
+    socket.emit("offerDraw");
+  }
+
+  function respondDraw(accept: boolean) {
+    socket.emit("respondDraw", accept);
+  }
+
+  function getGameActionsHtml() {
+    if (!mySide || !gameInProgress) return null;
+
+    if (lobby.drawOffer && lobby.drawOffer !== mySide) {
+      return (
+        <div className="flex w-full items-center gap-1">
+          <span className="flex-grow text-sm">Your opponent offers a draw.</span>
+          <button className="btn btn-sm btn-primary" onClick={() => respondDraw(true)}>
+            Accept
+          </button>
+          <button className="btn btn-sm btn-ghost" onClick={() => respondDraw(false)}>
+            Decline
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex w-full gap-1">
+        <button
+          className={
+            "btn btn-sm flex-grow normal-case" +
+            (lobby.drawOffer || !lobby.pgn ? " btn-disabled" : "")
+          }
+          onClick={offerDraw}
+        >
+          {lobby.drawOffer === mySide ? "Draw offered" : "Offer draw"}
+        </button>
+        <button
+          className={"btn btn-sm flex-grow normal-case" + (confirmResign ? " btn-error" : "")}
+          onClick={resign}
+        >
+          {confirmResign ? "Confirm resign" : "Resign"}
+        </button>
+      </div>
+    );
+  }
+
   function claimAbandoned(type: "win" | "draw") {
     if (
       lobby.side === "s" ||
@@ -656,6 +723,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                 <IconPlayerSkipForward size={18} />
               </button>
             </div>
+            <div className="mt-6">{getGameActionsHtml()}</div>
           </div>
         </div>
 

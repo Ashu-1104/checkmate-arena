@@ -1,4 +1,4 @@
-import type { Game } from "@chessu/types";
+import type { Game, User } from "@chessu/types";
 import { Chess } from "chess.js";
 import type { DisconnectReason, Socket } from "socket.io";
 
@@ -59,6 +59,20 @@ function scheduleFlag(game: Game, side: "white" | "black") {
 
 function stampClock(game: Game) {
     if (game.clock) game.clock.serverTime = Date.now();
+}
+
+function playerSide(game: Game, userId: User["id"]): "white" | "black" | undefined {
+    if (game.white?.id === userId) return "white";
+    if (game.black?.id === userId) return "black";
+    return undefined;
+}
+
+// the player's game, if it has two players and is still in progress
+function findPlayingGame(socket: Socket) {
+    const game = activeGames.find((g) => g.code === Array.from(socket.rooms)[1]);
+    if (!game || game.endReason || game.winner || !game.white || !game.black) return undefined;
+    const side = playerSide(game, socket.request.session.user.id);
+    return side ? { game, side } : undefined;
 }
 
 export async function joinLobby(this: Socket, gameCode: string) {
@@ -252,6 +266,13 @@ export async function sendMove(this: Socket, m: { from: string; to: string; prom
         if (newMove) {
             game.pgn = chess.pgn();
             this.to(game.code as string).emit("receivedMove", m);
+            if (game.drawOffer) {
+                // making a move declines a pending draw offer
+                game.drawOffer = null;
+                io.to(game.code as string).emit("drawDeclined", {
+                    name: this.request.session.user.name
+                });
+            }
             if (clockResult) {
                 game.clock = clockResult.clock;
                 stampClock(game);
@@ -340,4 +361,34 @@ export async function chat(this: Socket, message: string) {
         author: this.request.session.user,
         message
     });
+}
+
+export async function resign(this: Socket) {
+    const playing = findPlayingGame(this);
+    if (!playing) return;
+    await finishGame(playing.game, "resigned", playing.side === "white" ? "black" : "white");
+}
+
+export async function offerDraw(this: Socket) {
+    const playing = findPlayingGame(this);
+    if (!playing || !playing.game.pgn || playing.game.drawOffer) return;
+    playing.game.drawOffer = playing.side;
+    io.to(playing.game.code as string).emit("drawOffered", {
+        name: this.request.session.user.name,
+        side: playing.side
+    });
+}
+
+export async function respondDraw(this: Socket, accept: boolean) {
+    const playing = findPlayingGame(this);
+    // only the opponent of the player who offered can respond
+    if (!playing || !playing.game.drawOffer || playing.game.drawOffer === playing.side) return;
+    if (accept) {
+        await finishGame(playing.game, "agreement", "draw");
+    } else {
+        playing.game.drawOffer = null;
+        io.to(playing.game.code as string).emit("drawDeclined", {
+            name: this.request.session.user.name
+        });
+    }
 }
