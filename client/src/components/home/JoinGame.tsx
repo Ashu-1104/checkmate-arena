@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useContext, useState } from "react";
 
+import { SITE_HOST } from "@/config";
 import { SessionContext } from "@/context/session";
 import { fetchActiveGame } from "@/lib/game";
 
@@ -25,7 +26,7 @@ export default function JoinGame() {
 
     setButtonLoading(true);
 
-    if (code.startsWith("ches.su")) {
+    if (code.startsWith(SITE_HOST)) {
       code = "http://" + code;
     }
     if (code.startsWith("http")) {

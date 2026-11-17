@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/config";
 import ArchivedGame from "@/components/archive/ArchivedGame";
 import { fetchArchivedGame } from "@/lib/game";
 import type { Game } from "@chessu/types";
@@ -19,10 +20,10 @@ export async function generateMetadata({ params }: { params: { id: number } }) {
   return {
     description: `Archived game: ${game.white?.name} vs ${game.black?.name}`,
     openGraph: {
-      title: "chessu",
+      title: "KnightLink",
       description: `Archived game: ${game.white?.name} vs ${game.black?.name}`,
-      url: `https://ches.su/archive/${game.id}`,
-      siteName: "chessu",
+      url: `${SITE_URL}/archive/${game.id}`,
+      siteName: "KnightLink",
       locale: "en_US",
       type: "website"
     },

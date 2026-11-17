@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/config";
 import GameAuthWrapper from "@/components/game/GameAuthWrapper";
 import { fetchActiveGame } from "@/lib/game";
 import { notFound } from "next/navigation";
@@ -18,10 +19,10 @@ export async function generateMetadata({ params }: { params: { code: string } })
   return {
     description: `Play or watch a game with ${game.host?.name}`,
     openGraph: {
-      title: "chessu",
+      title: "KnightLink",
       description: `Play or watch a game with ${game.host?.name}`,
-      url: `https://ches.su/${game.code}`,
-      siteName: "chessu",
+      url: `${SITE_URL}/${game.code}`,
+      siteName: "KnightLink",
       locale: "en_US",
       type: "website"
     },

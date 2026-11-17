@@ -1,7 +1,7 @@
 {
-    "name": "chessu",
+    "name": "knightlink",
     "private": "true",
-    "author": "dotnize",
+    "author": "Ashutosh Tiwari",
     "license": "MIT",
     "scripts": {
         "install:client": "pnpm install --filter client",

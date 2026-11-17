@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/config";
 import CopyLink from "@/components/user/CopyLink";
 import { fetchProfileData } from "@/lib/user";
 import { notFound } from "next/navigation";
@@ -16,13 +17,13 @@ export async function generateMetadata({ params }: { params: { name: string } })
     };
   }
   return {
-    title: `${data.name} | chessu`,
+    title: `${data.name} | KnightLink`,
     description: `${data.name}'s profile`,
     openGraph: {
-      title: `${data.name} | chessu`,
-      description: `${data.name}'s profile on chessu`,
-      url: `https://ches.su/user/${data.name}`,
-      siteName: "chessu",
+      title: `${data.name} | KnightLink`,
+      description: `${data.name}'s profile on KnightLink`,
+      url: `${SITE_URL}/user/${data.name}`,
+      siteName: "KnightLink",
       locale: "en_US",
       type: "website"
     },

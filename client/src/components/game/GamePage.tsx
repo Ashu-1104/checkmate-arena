@@ -22,7 +22,7 @@ import { Chess } from "chess.js";
 import type { ClearPremoves } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 
-import { API_URL } from "@/config";
+import { API_URL, SITE_HOST, SITE_URL } from "@/config";
 import { io } from "socket.io-client";
 
 import { lobbyReducer, squareReducer } from "./reducers";
@@ -149,9 +149,9 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     if (lobby.side === "s" || !lobby.white?.id || !lobby.black?.id) return;
 
     if (!lobby.endReason && lobby.side === lobby.actualGame.turn()) {
-      document.title = "(your turn) chessu";
+      document.title = "(your turn) KnightLink";
     } else {
-      document.title = "chessu";
+      document.title = "KnightLink";
     }
   }
 
@@ -408,7 +408,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   }
 
   function copyInvite() {
-    const text = `https://ches.su/${lobby.endReason ? `archive/${lobby.id}` : initialLobby.code}`;
+    const text = `${SITE_URL}/${lobby.endReason ? `archive/${lobby.id}` : initialLobby.code}`;
     if ("clipboard" in navigator) {
       navigator.clipboard.writeText(text);
     } else {
@@ -586,7 +586,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                   onClick={copyInvite}
                 >
                   <IconCopy size={16} />
-                  ches.su/{lobby.endReason ? `archive/${lobby.id}` : initialLobby.code}
+                  {SITE_HOST}/{lobby.endReason ? `archive/${lobby.id}` : initialLobby.code}
                 </label>
                 <div tabIndex={0} className="dropdown-content badge badge-neutral text-xs shadow">
                   copied to clipboard
@@ -667,7 +667,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    ches.su/archive/{lobby.id}
+                    {SITE_HOST}/archive/{lobby.id}
                   </a>
                   .
                 </div>

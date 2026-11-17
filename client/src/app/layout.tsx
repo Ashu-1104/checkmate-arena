@@ -2,6 +2,8 @@ import "@/styles/globals.css";
 
 import type { ReactNode } from "react";
 
+import { SITE_URL } from "@/config";
+
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import AuthModal from "@/components/auth/AuthModal";
@@ -9,13 +11,13 @@ import AuthModal from "@/components/auth/AuthModal";
 import ContextProvider from "@/context/ContextProvider";
 
 export const metadata = {
-  title: "chessu",
+  title: "KnightLink",
   description: "Play Chess online.",
   openGraph: {
-    title: "chessu",
+    title: "KnightLink",
     description: "Play Chess online.",
-    url: "https://ches.su",
-    siteName: "chessu",
+    url: SITE_URL,
+    siteName: "KnightLink",
     locale: "en_US",
     type: "website"
   },
@@ -33,7 +35,7 @@ export const metadata = {
     apple: { url: "/apple-touch-icon.png", sizes: "180x180" }
   },
   manifest: "/site.webmanifest",
-  metadataBase: new URL(process.env.VERCEL ? "https://ches.su" : "http://localhost:3000")
+  metadataBase: new URL(SITE_URL)
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
