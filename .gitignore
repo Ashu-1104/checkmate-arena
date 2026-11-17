@@ -41,3 +41,6 @@ dist-ssr
 *.sln
 *.sw?
 *.pem
+
+# copied from node_modules by client/scripts/copy-stockfish.mjs
+client/public/engine/

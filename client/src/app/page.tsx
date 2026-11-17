@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import CreateGame from "@/components/home/CreateGame";
 import JoinGame from "@/components/home/JoinGame";
 import PublicGames from "@/components/home/PublicGames/PublicGames";
@@ -21,6 +23,12 @@ export default function Home() {
           <h2 className="mb-4 text-xl font-bold leading-tight">Create game</h2>
           <CreateGame />
         </div>
+
+        <div className="divider divider-vertical">or</div>
+
+        <Link href="/computer" className="btn btn-secondary normal-case">
+          Play vs computer
+        </Link>
       </div>
     </div>
   );
