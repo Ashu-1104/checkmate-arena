@@ -21,8 +21,6 @@ const updateRatings = async (game: Game, whiteId?: User["id"], blackId?: User["i
     return { white: result.whiteChange, black: result.blackChange };
 };
 
-export const activeGames: Game[] = [];
-
 export const save = async (game: Game) => {
     try {
         const white: User = {};

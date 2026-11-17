@@ -3,9 +3,8 @@ import { hash, verify } from "argon2";
 import type { Request, Response } from "express";
 import xss from "xss";
 
-import { activeGames } from "../db/models/game.model.js";
 import UserModel from "../db/models/user.model.js";
-import { io } from "../server.js";
+import { updatePlayer } from "../live/handlers.js";
 
 export const getCurrentSession = async (req: Request, res: Response) => {
     try {
@@ -46,28 +45,7 @@ export const guestSession = async (req: Request, res: Response) => {
             // update guest name
             req.session.user.name = name;
 
-            const game = activeGames.find(
-                (g) =>
-                    g.white?.id === req.session.user.id ||
-                    g.black?.id === req.session.user.id ||
-                    g.observers?.find((o) => o.id === req.session.user.id)
-            );
-            if (game) {
-                if (game.host?.id === req.session.user.id) {
-                    game.host.name = name;
-                }
-                if (game.white?.id === req.session.user.id) {
-                    game.white.name = name;
-                } else if (game.black?.id === req.session.user.id) {
-                    game.black.name = name;
-                } else {
-                    const observer = game.observers?.find((o) => o.id === req.session.user.id);
-                    if (observer) {
-                        observer.name = name;
-                    }
-                }
-                io.to(game.code as string).emit("receivedLatestGame", game);
-            }
+            await updatePlayer(req.session.user.id, { id: req.session.user.id, name });
         }
         req.session.save(() => {
             res.status(201).json(req.session.user);
@@ -125,29 +103,7 @@ export const registerUser = async (req: Request, res: Response) => {
             name: newUser.name
         };
         if (req.session.user?.id && typeof req.session.user.id === "string") {
-            const game = activeGames.find(
-                (g) =>
-                    g.white?.id === req.session.user.id ||
-                    g.black?.id === req.session.user.id ||
-                    g.observers?.find((o) => o.id === req.session.user.id)
-            );
-            if (game) {
-                if (game.host?.id === req.session.user.id) {
-                    game.host = publicUser;
-                }
-                if (game.white && game.white?.id === req.session.user.id) {
-                    game.white = publicUser;
-                } else if (game.black && game.black?.id === req.session.user.id) {
-                    game.black = publicUser;
-                } else {
-                    const observer = game.observers?.find((o) => o.id === req.session.user.id);
-                    if (observer) {
-                        observer.id = publicUser.id;
-                        observer.name = publicUser.name;
-                    }
-                }
-                io.to(game.code as string).emit("receivedLatestGame", game);
-            }
+            await updatePlayer(req.session.user.id, publicUser);
         }
 
         req.session.user = newUser;
@@ -191,29 +147,7 @@ export const loginUser = async (req: Request, res: Response) => {
         };
 
         if (req.session.user?.id && typeof req.session.user.id === "string") {
-            const game = activeGames.find(
-                (g) =>
-                    g.white?.id === req.session.user.id ||
-                    g.black?.id === req.session.user.id ||
-                    g.observers?.find((o) => o.id === req.session.user.id)
-            );
-            if (game) {
-                if (game.host?.id === req.session.user.id) {
-                    game.host = publicUser;
-                }
-                if (game.white && game.white?.id === req.session.user.id) {
-                    game.white = publicUser;
-                } else if (game.black && game.black?.id === req.session.user.id) {
-                    game.black = publicUser;
-                } else {
-                    const observer = game.observers?.find((o) => o.id === req.session.user.id);
-                    if (observer) {
-                        observer.id = publicUser.id;
-                        observer.name = publicUser.name;
-                    }
-                }
-                io.to(game.code as string).emit("receivedLatestGame", game);
-            }
+            await updatePlayer(req.session.user.id, publicUser);
         }
 
         req.session.user = {
@@ -282,29 +216,7 @@ export const updateUser = async (req: Request, res: Response) => {
             name: updatedUser.name
         };
 
-        const game = activeGames.find(
-            (g) =>
-                g.white?.id === req.session.user.id ||
-                g.black?.id === req.session.user.id ||
-                g.observers?.find((o) => o.id === req.session.user.id)
-        );
-        if (game) {
-            if (game.host?.id === req.session.user.id) {
-                game.host = publicUser;
-            }
-            if (game.white && game.white?.id === req.session.user.id) {
-                game.white = publicUser;
-            } else if (game.black && game.black?.id === req.session.user.id) {
-                game.black = publicUser;
-            } else {
-                const observer = game.observers?.find((o) => o.id === req.session.user.id);
-                if (observer) {
-                    observer.id = publicUser.id;
-                    observer.name = publicUser.name;
-                }
-            }
-            io.to(game.code as string).emit("receivedLatestGame", game);
-        }
+        await updatePlayer(req.session.user.id, publicUser);
 
         req.session.user = updatedUser;
         req.session.save(() => {

@@ -2,14 +2,16 @@ import type { Game, User } from "@chessu/types";
 import type { Request, Response } from "express";
 import { nanoid } from "nanoid";
 
-import GameModel, { activeGames } from "../db/models/game.model.js";
+import GameModel from "../db/models/game.model.js";
+import { insertGame, listGames, loadGame, purgeStale } from "../live/store.js";
 import { createClock, parseTimeControl } from "../utils/clock.js";
 
 export const getGames = async (req: Request, res: Response) => {
     try {
         if (!req.query.id && !req.query.userid) {
             // get all active games
-            res.status(200).json(activeGames.filter((g) => !g.unlisted && !g.winner));
+            await purgeStale();
+            res.status(200).json((await listGames()).filter((g) => !g.unlisted && !g.winner));
             return;
         }
 
@@ -53,7 +55,7 @@ export const getActiveGame = async (req: Request, res: Response) => {
             return;
         }
 
-        const game = activeGames.find((g) => g.code === req.params.code);
+        const game = await loadGame(req.params.code);
 
         if (!game) {
             res.status(404).end();
@@ -102,7 +104,7 @@ export const createGame = async (req: Request, res: Response) => {
                 game.black = user;
             }
         }
-        activeGames.push(game);
+        await insertGame(game);
 
         res.status(201).json({ code: game.code });
     } catch (err: unknown) {

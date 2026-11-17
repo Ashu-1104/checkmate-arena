@@ -23,15 +23,15 @@ import type { ClearPremoves } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 
 import { API_URL, SITE_HOST, SITE_URL } from "@/config";
-import { io } from "socket.io-client";
 
 import { describeResult, formatTimeControl } from "@/lib/format";
+import { LiveSocket } from "@/lib/liveSocket";
 import Clock from "./Clock";
 import { lobbyReducer, squareReducer } from "./reducers";
 import { initSocket } from "./socketEvents";
 import { syncPgn, syncSide } from "./utils";
 
-const socket = io(API_URL, { withCredentials: true, autoConnect: false });
+const socket = new LiveSocket(API_URL);
 
 export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   const session = useContext(SessionContext);
@@ -101,7 +101,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
 
   useEffect(() => {
     if (!session?.user || !session.user?.id) return;
-    socket.connect();
+    socket.connect(initialLobby.code as string);
 
     window.addEventListener("resize", handleResize);
     handleResize();

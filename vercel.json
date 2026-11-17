@@ -1,0 +1,16 @@
+{
+  "services": {
+    "web": {
+      "root": "client",
+      "framework": "nextjs"
+    },
+    "api": {
+      "root": "server",
+      "entrypoint": "src/app.ts"
+    }
+  },
+  "rewrites": [
+    { "source": "/v1/(.*)", "destination": { "service": "api" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ]
+}

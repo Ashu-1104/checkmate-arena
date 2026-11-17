@@ -1,7 +1,8 @@
 import type { Action, CustomSquares, Lobby, Message } from "@/types";
 import type { Clock, Game, User } from "@chessu/types";
 import type { Dispatch, SetStateAction } from "react";
-import type { Socket } from "socket.io-client";
+
+import type { LiveSocket as Socket } from "@/lib/liveSocket";
 
 import { syncPgn, syncSide } from "./utils";
 
