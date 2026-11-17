@@ -28,6 +28,9 @@ export interface Game {
     flagTimeout?: number;
 
     drawOffer?: "white" | "black" | null; // side with a pending draw offer
+
+    // set when a finished game between two registered users was rated
+    ratingChange?: { white: number; black: number };
 }
 
 export interface TimeControl {
@@ -49,6 +52,7 @@ export interface User {
     wins?: number;
     losses?: number;
     draws?: number;
+    rating?: number;
 
     // mainly for players, not spectators
     connected?: boolean;

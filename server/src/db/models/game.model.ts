@@ -1,5 +1,25 @@
 import type { Game, User } from "@chessu/types";
+import { calculateRatings } from "../../utils/elo.js";
 import { db } from "../index.js";
+
+// Updates both players' ratings when two different registered users finish a game.
+const updateRatings = async (game: Game, whiteId?: User["id"], blackId?: User["id"]) => {
+    if (!whiteId || !blackId || whiteId === blackId || !game.winner) return undefined;
+
+    const res = await db.query(`SELECT id, rating FROM "user" WHERE id = ANY($1::int[])`, [
+        [whiteId, blackId]
+    ]);
+    const ratingOf = (id: User["id"]) => res.rows.find((r) => r.id === id)?.rating;
+    const whiteRating = ratingOf(whiteId);
+    const blackRating = ratingOf(blackId);
+    if (whiteRating === undefined || blackRating === undefined) return undefined;
+
+    const score = game.winner === "white" ? 1 : game.winner === "black" ? 0 : 0.5;
+    const result = calculateRatings(whiteRating, blackRating, score);
+    await db.query(`UPDATE "user" SET rating = $1 WHERE id = $2`, [result.white, whiteId]);
+    await db.query(`UPDATE "user" SET rating = $1 WHERE id = $2`, [result.black, blackId]);
+    return { white: result.whiteChange, black: result.blackChange };
+};
 
 export const activeGames: Game[] = [];
 
@@ -52,8 +72,10 @@ export const save = async (game: Game) => {
                 }
             }
         }
+        const ratingChange = await updateRatings(game, white.id, black.id);
         return {
             id: res.rows[0].id,
+            ratingChange,
             winner: res.rows[0].winner,
             endReason: res.rows[0].reason,
             pgn: res.rows[0].pgn,

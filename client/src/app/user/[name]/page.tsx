@@ -47,6 +47,10 @@ export default async function Profile({ params }: { params: { name: string } }) 
         <h1 className="text-4xl font-bold">{data.name}</h1>
         <div className="flex gap-6">
           <div className="flex flex-col items-center">
+            <span className="text-sm">Rating</span>
+            <span className="text-primary text-xl font-bold">{data.rating}</span>
+          </div>
+          <div className="flex flex-col items-center">
             <span className="text-sm">Wins</span>
             <span className="text-xl font-bold">{data.wins}</span>
           </div>

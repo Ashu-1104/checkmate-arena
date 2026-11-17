@@ -16,3 +16,18 @@ export const fetchProfileData = async (name: string) => {
         console.error(err);
     }
 };
+
+export const fetchLeaderboard = async () => {
+    try {
+        const res = await fetch(`${API_URL}/v1/leaderboard`, {
+            next: { revalidate: 10 }
+        });
+
+        if (res && res.status === 200) {
+            const users: User[] = await res.json();
+            return users;
+        }
+    } catch (err) {
+        console.error(err);
+    }
+};

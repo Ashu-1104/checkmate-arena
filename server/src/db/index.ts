@@ -25,4 +25,6 @@ export const INIT_TABLES = /* sql */ `
         started_at TIMESTAMP NOT NULL,
         ended_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+    ALTER TABLE "user" ADD COLUMN IF NOT EXISTS rating INTEGER NOT NULL DEFAULT 1200;
+    CREATE INDEX IF NOT EXISTS user_rating_idx ON "user" (rating DESC);
 `;

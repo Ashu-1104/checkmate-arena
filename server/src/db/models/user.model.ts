@@ -8,7 +8,7 @@ export const create = async (user: User, password: string) => {
 
     try {
         const res = await db.query(
-            `INSERT INTO "user"(name, email, password) VALUES($1, $2, $3) RETURNING id, name, email, wins, losses, draws`,
+            `INSERT INTO "user"(name, email, password) VALUES($1, $2, $3) RETURNING id, name, email, wins, losses, draws, rating`,
             [user.name, user.email || null, password]
         );
         return res.rows[0] as User;
@@ -24,7 +24,7 @@ export const findById = async (id: number) => {
     }
     try {
         const res = await db.query(
-            `SELECT id, name, email, wins, losses, draws FROM "user" WHERE id=$1`,
+            `SELECT id, name, email, wins, losses, draws, rating FROM "user" WHERE id=$1`,
             [id]
         );
         if (res.rowCount) {
@@ -41,7 +41,7 @@ export const findByNameEmail = async (user: User, includePassword = false, limit
     if (!user) {
         try {
             const res = await db.query(
-                `SELECT id, name, email, wins, losses, draws FROM "user" LIMIT $1`,
+                `SELECT id, name, email, wins, losses, draws, rating FROM "user" LIMIT $1`,
                 [limit ?? 10]
             );
             return res.rows as (User & { password?: string })[];
@@ -53,7 +53,7 @@ export const findByNameEmail = async (user: User, includePassword = false, limit
 
     try {
         const res = await db.query(
-            `SELECT id, name, email, wins, losses, draws${
+            `SELECT id, name, email, wins, losses, draws, rating${
                 includePassword ? `, password` : ""
             } FROM "user" WHERE name=$1 OR email=$2 LIMIT $3`,
             [user.name, user.email, limit ?? 1]
@@ -71,11 +71,11 @@ export const update = async (id: number, updatedUser: User & { password?: string
     }
 
     try {
-        let query = `UPDATE "user" SET name=$1, email=$2 WHERE id=$3 RETURNING id, name, email, wins, losses, draws`;
+        let query = `UPDATE "user" SET name=$1, email=$2 WHERE id=$3 RETURNING id, name, email, wins, losses, draws, rating`;
         let values = [updatedUser.name, updatedUser.email, id];
 
         if (updatedUser.password) {
-            query = `UPDATE "user" SET name=$1, email=$2, password=$3 WHERE id=$4 RETURNING id, name, email, wins, losses, draws`;
+            query = `UPDATE "user" SET name=$1, email=$2, password=$3 WHERE id=$4 RETURNING id, name, email, wins, losses, draws, rating`;
             values = [updatedUser.name, updatedUser.email, updatedUser.password, id];
         }
         const res = await db.query(query, values);
@@ -102,12 +102,27 @@ export const remove = async (id: number) => {
     }
 };
 
+// highest rated users who have finished at least one game
+export const findTopRated = async (limit = 50) => {
+    try {
+        const res = await db.query(
+            `SELECT id, name, wins, losses, draws, rating FROM "user" WHERE wins + losses + draws > 0 ORDER BY rating DESC, wins DESC LIMIT $1`,
+            [limit]
+        );
+        return res.rows as User[];
+    } catch (err: unknown) {
+        console.log(err);
+        return null;
+    }
+};
+
 const UserModel = {
     create,
     findById,
     findByNameEmail,
     update,
-    remove
+    remove,
+    findTopRated
 };
 
 export default UserModel;

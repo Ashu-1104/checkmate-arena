@@ -1,4 +1,4 @@
-import { IconUser } from "@tabler/icons-react";
+import { IconTrophy, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 
@@ -24,6 +24,10 @@ export default function Header() {
         </Link>
       </div>
       <div className="flex-none">
+        <Link href="/leaderboard" className="btn btn-ghost btn-sm gap-1 normal-case">
+          <IconTrophy size={18} />
+          <span className="hidden sm:inline">Leaderboard</span>
+        </Link>
         <ThemeToggle />
         <label tabIndex={0} htmlFor="auth-modal" className="btn btn-ghost btn-circle avatar">
           <div className="w-10 rounded-full">

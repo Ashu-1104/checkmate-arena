@@ -12,7 +12,8 @@ import { applyMove, remainingTime } from "../utils/clock.js";
 async function finishGame(
     game: Game,
     reason: Game["endReason"],
-    winner: "white" | "black" | "draw"
+    winner: "white" | "black" | "draw",
+    winnerName = winner === "draw" ? undefined : game[winner]?.name
 ) {
     game.endReason = reason;
     game.winner = winner;
@@ -23,9 +24,10 @@ async function finishGame(
 
     io.to(game.code as string).emit("gameOver", {
         reason,
-        winnerName: winner === "draw" ? undefined : game[winner]?.name,
+        winnerName,
         winnerSide: winner === "draw" ? undefined : winner,
-        id: game.id
+        id: game.id,
+        ratingChange: saved?.ratingChange
     });
 
     if (game.timeout) clearTimeout(game.timeout);
@@ -197,31 +199,13 @@ export async function claimAbandoned(this: Socket, type: "win" | "draw") {
         return;
     }
 
-    game.endReason = "abandoned";
-
-    if (type === "draw") {
-        game.winner = "draw";
-    } else if (game.white && game.white?.id === this.request.session.user.id) {
-        game.winner = "white";
-    } else if (game.black && game.black?.id === this.request.session.user.id) {
-        game.winner = "black";
-    }
-
-    const { id } = (await GameModel.save(game)) as Game;
-    game.id = id;
-
-    const gameOver = {
-        reason: game.endReason,
-        winnerName: this.request.session.user.name,
-        winnerSide: game.winner === "draw" ? undefined : game.winner,
-        id
-    };
-
-    io.to(game.code as string).emit("gameOver", gameOver);
-
-    if (game.flagTimeout) clearTimeout(game.flagTimeout);
-    if (game.timeout) clearTimeout(game.timeout);
-    activeGames.splice(activeGames.indexOf(game), 1);
+    const winner =
+        type === "draw"
+            ? "draw"
+            : game.white?.id === this.request.session.user.id
+              ? "white"
+              : "black";
+    await finishGame(game, "abandoned", winner, this.request.session.user.name as string);
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -288,27 +272,8 @@ export async function sendMove(this: Socket, m: { from: string; to: string; prom
                 else if (chess.isDraw()) reason = "draw";
 
                 const winnerSide =
-                    reason === "checkmate" ? (prevTurn === "w" ? "white" : "black") : undefined;
-                const winnerName =
-                    reason === "checkmate"
-                        ? winnerSide === "white"
-                            ? game.white?.name
-                            : game.black?.name
-                        : undefined;
-                if (reason === "checkmate") {
-                    game.winner = winnerSide;
-                } else {
-                    game.winner = "draw";
-                }
-                game.endReason = reason;
-
-                const { id } = (await GameModel.save(game)) as Game; // save game to db
-                game.id = id;
-                io.to(game.code as string).emit("gameOver", { reason, winnerName, winnerSide, id });
-
-                if (game.flagTimeout) clearTimeout(game.flagTimeout);
-                if (game.timeout) clearTimeout(game.timeout);
-                activeGames.splice(activeGames.indexOf(game), 1);
+                    reason === "checkmate" ? (prevTurn === "w" ? "white" : "black") : "draw";
+                await finishGame(game, reason, winnerSide);
             }
         } else {
             throw new Error("invalid move");

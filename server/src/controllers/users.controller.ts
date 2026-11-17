@@ -22,10 +22,25 @@ export const getUserProfile = async (req: Request, res: Response) => {
             name: users[0].name,
             wins: users[0].wins,
             losses: users[0].losses,
-            draws: users[0].draws
+            draws: users[0].draws,
+            rating: users[0].rating
         };
 
         res.status(200).json({ ...publicUser, recentGames });
+    } catch (err: unknown) {
+        console.log(err);
+        res.status(500).end();
+    }
+};
+
+export const getLeaderboard = async (req: Request, res: Response) => {
+    try {
+        const users = await UserModel.findTopRated();
+        if (!users) {
+            res.status(500).end();
+            return;
+        }
+        res.status(200).json(users);
     } catch (err: unknown) {
         console.log(err);
         res.status(500).end();

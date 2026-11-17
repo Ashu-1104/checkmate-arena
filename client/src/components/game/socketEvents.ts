@@ -78,12 +78,14 @@ export function initSocket(
             reason,
             winnerName,
             winnerSide,
-            id
+            id,
+            ratingChange
         }: {
             reason: Game["endReason"];
             winnerName?: string;
             winnerSide?: "white" | "black" | "draw";
             id: number;
+            ratingChange?: Game["ratingChange"];
         }) => {
             const m = {
                 author: { name: "server" }
@@ -122,6 +124,14 @@ export function initSocket(
                 payload: { endReason: reason, winner: winnerSide || "draw", id }
             });
             actions.addMessage(m);
+
+            if (ratingChange) {
+                const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`);
+                actions.addMessage({
+                    author: { name: "server" },
+                    message: `Rating change: white ${signed(ratingChange.white)}, black ${signed(ratingChange.black)}.`
+                });
+            }
         }
     );
 }
