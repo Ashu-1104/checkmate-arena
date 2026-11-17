@@ -16,7 +16,8 @@
         "start:server": "pnpm --filter server start",
         "lint": "eslint . --ignore-pattern \"pnpm-lock.yaml\" --ignore-path .gitignore",
         "lint:fix": "eslint --fix . --ignore-pattern \"pnpm-lock.yaml\" --ignore-path .gitignore",
-        "format": "prettier --write . \"!pnpm-lock.yaml\" --ignore-path .gitignore"
+        "format": "prettier --write . \"!pnpm-lock.yaml\" --ignore-path .gitignore",
+        "test": "pnpm --filter server test && pnpm --filter client test"
     },
     "devDependencies": {
         "concurrently": "^8.2.2",

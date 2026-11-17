@@ -7,7 +7,9 @@
         "isolated-install": "pnpm -w install:server",
         "start": "node dist/server.js",
         "build": "tsc",
-        "dev": "tsc-watch --noClear --onSuccess \"node dist/server.js\""
+        "dev": "tsc-watch --noClear --onSuccess \"node dist/server.js\"",
+        "test": "vitest run test/unit",
+        "test:integration": "vitest run test/integration"
     },
     "dependencies": {
         "argon2": "^0.40.3",
@@ -32,8 +34,10 @@
         "@types/pg": "^8.11.6",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@typescript-eslint/parser": "^6.21.0",
+        "socket.io-client": "^4.7.5",
         "tsc-watch": "^6.2.0",
-        "typescript": "^5.5.3"
+        "typescript": "^5.5.3",
+        "vitest": "2.1.9"
     },
     "engines": {
         "node": ">=20"
