@@ -20,10 +20,10 @@ export async function generateMetadata({ params }: { params: { id: number } }) {
   return {
     description: `Archived game: ${game.white?.name} vs ${game.black?.name}`,
     openGraph: {
-      title: "KnightLink",
+      title: "CheckMate Arena",
       description: `Archived game: ${game.white?.name} vs ${game.black?.name}`,
       url: `${SITE_URL}/archive/${game.id}`,
-      siteName: "KnightLink",
+      siteName: "CheckMate Arena",
       locale: "en_US",
       type: "website"
     },

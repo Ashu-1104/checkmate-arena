@@ -13,9 +13,9 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: knightlink
-          POSTGRES_PASSWORD: knightlink
-          POSTGRES_DB: knightlink
+          POSTGRES_USER: checkmate
+          POSTGRES_PASSWORD: checkmate
+          POSTGRES_DB: checkmate
         ports:
           - 5432:5432
         options: >-
@@ -26,9 +26,9 @@ jobs:
 
     env:
       PGHOST: localhost
-      PGUSER: knightlink
-      PGPASSWORD: knightlink
-      PGDATABASE: knightlink
+      PGUSER: checkmate
+      PGPASSWORD: checkmate
+      PGDATABASE: checkmate
       NEXT_TELEMETRY_DISABLED: 1
 
     steps:

@@ -1,11 +1,11 @@
-# KnightLink
+# CheckMate Arena
 
-[![CI](https://github.com/Ashu-1104/knightlink/actions/workflows/ci.yml/badge.svg)](https://github.com/Ashu-1104/knightlink/actions/workflows/ci.yml)
+[![CI](https://github.com/Ashu-1104/checkmate-arena/actions/workflows/ci.yml/badge.svg)](https://github.com/Ashu-1104/checkmate-arena/actions/workflows/ci.yml)
 
 Real-time multiplayer chess in the browser — play friends with an invite link, spectate and chat in live games, and track your stats with an optional account.
 
 <p align="center">
-  <img src="./assets/demo.jpg" alt="KnightLink" width="640" />
+  <img src="./assets/demo.jpg" alt="CheckMate Arena" width="640" />
 </p>
 
 ## Features
@@ -35,9 +35,9 @@ Next.js 14, React, TypeScript, Tailwind CSS + daisyUI, react-chessboard, chess.j
 2. Create `server/.env` with your PostgreSQL connection:
    ```env
    PGHOST=localhost
-   PGUSER=knightlink
-   PGPASSWORD=knightlink
-   PGDATABASE=knightlink
+   PGUSER=checkmate
+   PGPASSWORD=checkmate
+   PGDATABASE=checkmate
    ```
 3. Start both servers with `pnpm dev` (or `pnpm dev:client` / `pnpm dev:server`).
 4. Open http://localhost:3000 — the API runs on http://localhost:3001.
@@ -56,7 +56,7 @@ The integration tests start the real server and play games over Socket.IO. CI ru
 
 ## Credits
 
-KnightLink is built on [chessu](https://github.com/dotnize/chessu) by nize, released under the MIT License. The original copyright notice is kept in [LICENSE](./LICENSE).
+CheckMate Arena is built on [chessu](https://github.com/dotnize/chessu) by nize, released under the MIT License. The original copyright notice is kept in [LICENSE](./LICENSE).
 
 Play vs Computer uses [Stockfish](https://stockfishchess.org) via [stockfish.js](https://github.com/niklasf/stockfish.js), licensed under the GPLv3. The engine is copied unmodified into `client/public/engine` at install time and runs as a separate Web Worker; its license is served alongside it.
 

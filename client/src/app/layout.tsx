@@ -11,13 +11,13 @@ import AuthModal from "@/components/auth/AuthModal";
 import ContextProvider from "@/context/ContextProvider";
 
 export const metadata = {
-  title: "KnightLink",
+  title: "CheckMate Arena",
   description: "Play Chess online.",
   openGraph: {
-    title: "KnightLink",
+    title: "CheckMate Arena",
     description: "Play Chess online.",
     url: SITE_URL,
-    siteName: "KnightLink",
+    siteName: "CheckMate Arena",
     locale: "en_US",
     type: "website"
   },

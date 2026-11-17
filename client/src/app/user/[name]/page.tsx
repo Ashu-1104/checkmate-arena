@@ -17,13 +17,13 @@ export async function generateMetadata({ params }: { params: { name: string } })
     };
   }
   return {
-    title: `${data.name} | KnightLink`,
+    title: `${data.name} | CheckMate Arena`,
     description: `${data.name}'s profile`,
     openGraph: {
-      title: `${data.name} | KnightLink`,
-      description: `${data.name}'s profile on KnightLink`,
+      title: `${data.name} | CheckMate Arena`,
+      description: `${data.name}'s profile on CheckMate Arena`,
       url: `${SITE_URL}/user/${data.name}`,
-      siteName: "KnightLink",
+      siteName: "CheckMate Arena",
       locale: "en_US",
       type: "website"
     },

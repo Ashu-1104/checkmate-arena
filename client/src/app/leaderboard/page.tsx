@@ -1,8 +1,8 @@
 import { fetchLeaderboard } from "@/lib/user";
 
 export const metadata = {
-  title: "Leaderboard | KnightLink",
-  description: "Top rated KnightLink players."
+  title: "Leaderboard | CheckMate Arena",
+  description: "Top rated CheckMate Arena players."
 };
 
 export default async function Leaderboard() {

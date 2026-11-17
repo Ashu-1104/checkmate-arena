@@ -1,7 +1,7 @@
 import ComputerGame from "@/components/computer/ComputerGame";
 
 export const metadata = {
-  title: "Play vs Computer | KnightLink",
+  title: "Play vs Computer | CheckMate Arena",
   description: "Play chess against the Stockfish engine at eight difficulty levels."
 };
 

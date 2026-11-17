@@ -53,5 +53,5 @@ initSocket();
 
 const port = process.env.PORT || 3001;
 server.listen(port, () => {
-    console.log(`KnightLink api server listening on :${port}`);
+    console.log(`CheckMate Arena api server listening on :${port}`);
 });

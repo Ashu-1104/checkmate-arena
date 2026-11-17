@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="footer border-base-300 dark:border-neutral text-base-content mx-1 mt-4 w-auto grid-flow-col items-center justify-between border-t-2 p-4 md:mx-16 lg:mx-40">
       <div className="items-center">
         <p>
-          KnightLink by Ashutosh Tiwari &middot; based on{" "}
+          CheckMate Arena by Ashutosh Tiwari &middot; based on{" "}
           <a
             href="https://github.com/dotnize/chessu"
             target="_blank"
@@ -19,7 +19,7 @@ export default function Footer() {
       </div>
       <div className="items-center">
         <a
-          href="https://github.com/Ashu-1104/knightlink"
+          href="https://github.com/Ashu-1104/checkmate-arena"
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-ghost btn-sm gap-1 normal-case"
