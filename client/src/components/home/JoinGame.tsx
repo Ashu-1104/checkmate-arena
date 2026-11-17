@@ -1,5 +1,6 @@
 "use client";
 
+import { IconAlertCircle } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useContext, useState } from "react";
@@ -40,34 +41,38 @@ export default function JoinGame() {
     } else {
       setButtonLoading(false);
       setNotFound(true);
-      setTimeout(() => setNotFound(false), 5000);
-      codeEl.value = "";
     }
   }
 
   return (
-    <form
-      className={"input-group" + (notFound ? " tooltip tooltip-error tooltip-open" : "")}
-      data-tip="error: game not found"
-      onSubmit={submitJoinGame}
-    >
-      <input
-        type="text"
-        placeholder="Invite link or code"
-        className="input input-bordered"
-        name="joinGameCode"
-        id="joinGameCode"
-      />
-      <button
-        className={
-          "btn" +
-          (buttonLoading ? " loading" : "") +
-          (!session?.user?.id ? " btn-disabled text-base-content" : "")
-        }
-        type="submit"
-      >
-        Join
-      </button>
+    <form className="flex flex-col items-center gap-2" onSubmit={submitJoinGame}>
+      <div className="input-group justify-center">
+        <input
+          type="text"
+          placeholder="Invite link or code"
+          className={"input input-bordered" + (notFound ? " input-error" : "")}
+          name="joinGameCode"
+          id="joinGameCode"
+          onChange={() => setNotFound(false)}
+          aria-invalid={notFound}
+          aria-describedby="joinGameError"
+        />
+        <button
+          className={
+            "btn" +
+            (buttonLoading ? " loading" : "") +
+            (!session?.user?.id ? " btn-disabled text-base-content" : "")
+          }
+          type="submit"
+        >
+          Join
+        </button>
+      </div>
+      {notFound && (
+        <p id="joinGameError" role="alert" className="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
+          <IconAlertCircle size={16} /> Game not found. Check the invite link or code.
+        </p>
+      )}
     </form>
   );
 }
