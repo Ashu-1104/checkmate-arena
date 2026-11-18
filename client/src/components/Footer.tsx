@@ -5,16 +5,7 @@ export default function Footer() {
     <footer className="footer border-base-300 dark:border-neutral text-base-content mx-1 mt-4 w-auto grid-flow-col items-center justify-between border-t-2 p-4 md:mx-16 lg:mx-40">
       <div className="items-center">
         <p>
-          CheckMate Arena by Ashutosh Tiwari &middot; based on{" "}
-          <a
-            href="https://github.com/dotnize/chessu"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="link-hover"
-          >
-            chessu
-          </a>{" "}
-          by nize (MIT)
+          CheckMate Arena by Ashutosh Tiwari
         </p>
       </div>
       <div className="items-center">

@@ -6,10 +6,10 @@ We welcome contributions of any kind; however, for **feature changes or addition
 
 ## Getting Started
 
-1. [Fork this repository](https://github.com/dotnize/chessu/fork) to your GitHub account. You can then clone the repository to your local machine and create a new branch for your changes.
+1. [Fork this repository](https://github.com/Ashu-1104/checkmate-arena/fork) to your GitHub account. You can then clone the repository to your local machine and create a new branch for your changes.
    ```sh
-   git clone https://github.com/[your-username]/chessu.git
-   cd chessu
+   git clone https://github.com/[your-username]/checkmate-arena.git
+   cd checkmate-arena
    git checkout -b my-feature-branch
    ```
 2. Follow the [setup guide](./README.md#getting-started) from the README to install the necessary dependencies and run the development servers.

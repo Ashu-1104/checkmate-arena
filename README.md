@@ -71,9 +71,7 @@ pnpm --filter server test:integration      # needs PostgreSQL via PG* env vars
 
 The integration tests start the real server and play games over the HTTP actions and event streams, including a game ending on time. CI runs lint, builds and every test against a PostgreSQL service on each push and pull request.
 
-## Credits
-
-CheckMate Arena is built on [chessu](https://github.com/dotnize/chessu) by nize, released under the MIT License. The original copyright notice is kept in [LICENSE](./LICENSE).
+## Third-party software
 
 Play vs Computer uses [Stockfish](https://stockfishchess.org) via [stockfish.js](https://github.com/niklasf/stockfish.js), licensed under the GPLv3. The engine is copied unmodified into `client/public/engine` at install time and runs as a separate Web Worker; its license is served alongside it.
 
